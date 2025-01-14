@@ -102,9 +102,9 @@ const Terminal = () => {
   }, []);
 
   return (
-    <div className="w-full h-svh bg-black p-6 font-mono text-sm">
+    <div className="w-full h-svh bg-black p-o lg:p-6 font-mono text-sm">
       <motion.div
-        className="rounded-xl h-full p-3 overflow-hidden flex flex-col shadow-terminal-shadow discovery a-border"
+        className="rounded-xl h-full p-1.5 mb-2 overflow-hidden flex flex-col shadow-terminal-shadow discovery a-border"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
@@ -126,7 +126,7 @@ const Terminal = () => {
         {/* Terminal Content */}
         <div
           ref={terminalRef}
-          className="flex-1 overflow-y-auto text-zinc-200 px-2 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-800"
+          className="flex-1 overflow-y-auto overscroll-x-none text-zinc-200 px-1 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-800"
         >
           {history.map((entry, i) => (
             <motion.div
@@ -142,14 +142,14 @@ const Terminal = () => {
                 <span className="text-blue-400">$</span>
                 <span className="text-white">{entry.command}</span>
               </div>
-              <div className="pl-6 text-zinc-500">{entry.output}</div>
+              <div className="pl-4 text-zinc-500">{entry.output}</div>
             </motion.div>
           ))}
         </div>
 
         {/* Command Input */}
-        <form onSubmit={handleSubmit} className="flex items-center space-x-3 mt-4">
-          <span className="text-emerald-400 px-3 py-1 bg-surface900 rounded-full">
+        <form onSubmit={handleSubmit} className="flex mb-2 items-center space-x-3 mt-4">
+          <span className="text-emerald-500 subpixel-antialiased px-1.5 py-1 bg-surface900/20 rounded-full">
             {currentPath}
           </span>
           <span className="text-blue-400">$</span>
@@ -158,7 +158,7 @@ const Terminal = () => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="flex-1 bg-transparent outline-none text-zinc-100 focus:text-white placeholder:text-zinc-500 transition shadow-terminal-shadow focus:shadow-lg"
+            className="flex-1 bg-transparent outline-none text-x400 focus:text-white placeholder:text-zinc-500 transition  "
             placeholder="Type a command..."
             autoFocus
             whileFocus={{ scale: 1.02 }}
