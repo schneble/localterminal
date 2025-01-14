@@ -70,14 +70,14 @@ export const createCommands = (
           const name = path.split('/').pop() || '';
           const isDir = fileSystem[path].type === 'directory';
           return (
-            <span key={path} className={`${isDir ? 'text-blue-400' : 'text-gray-300'}`}>
+            <span key={path} className={`${isDir ? ' flex items-center text-surface600 mt-2' : 'flex items-center text-center text-slate-400'}`}>
               {name}{isDir ? '/' : ''}
             </span>
           );
         });
 
       return (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-4 justify-center gap-2 items-center text-center">
           {currentDirContent}
         </div>
       );

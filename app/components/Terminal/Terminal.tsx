@@ -10,8 +10,7 @@ import { useFileSystem } from './useFileSystem';
 const Terminal = () => {
   // State management
   const [input, setInput] = useState('');
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [history, setHistory] = useState<CommandHistory[]>([]);
+  const [, setHistory] = useState<CommandHistory[]>([]);
   const [currentPath, setCurrentPath] = useState('/home/user');
   const [editor, setEditor] = useState<EditorState>({
     isOpen: false,
@@ -133,23 +132,28 @@ const Terminal = () => {
         {/* Terminal Content */}
         <div
           ref={terminalRef}
-          className="flex-1 overflow-y-auto overscroll-x-none text-zinc-200 px-1 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-800"
+          className="flex-1 overflow-y-auto overscroll-x-none text-zinc-200 px-2 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-800"
         >
           {terminalContent.map((entry, i) => (
             <motion.div
-              key={i}
-              className="space-y-1 group"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.1 }}
-            >
-              <div className="flex items-center space-x-3">
-                <span className="text-zinc-500 text-xs">{new Date().toLocaleTimeString()}</span>
-                <span className="text-emerald-400">{currentPath}</span>
+            key={i}
+            className="space-y-1 group mb-1"
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.1 }}
+          >
+            <div className="flex items-center   space-x-1 ">
+                <div className='mb-2'>
                 <span className="text-blue-400">$</span>
-                <span className="text-white">{entry}</span>
-              </div>
-            </motion.div>
+                <span className="text-x400 ml-3  text-xs">{entry}</span>
+                </div>
+            {/* <span className="text-blue-400">$</span> */}
+              {/* <span className="text-emerald-400">{currentPath}</span> */}
+              {/* <span className="text-blue-400">$</span> */}
+              {/* <span className="text-white">{entry.command}</span> */}
+            </div>
+            {/* <div className="pl-6 text-zinc-500">{output}</div> */}
+          </motion.div>
           ))}
         </div>
 
