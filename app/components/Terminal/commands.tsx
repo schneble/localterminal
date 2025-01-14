@@ -3,7 +3,6 @@ import { FileSystem, EditorState } from './types';
 
 type SetFileSystem = React.Dispatch<React.SetStateAction<FileSystem>>;
 type SetEditor = React.Dispatch<React.SetStateAction<EditorState>>;
-
 type CommandResult = React.ReactNode | Promise<React.ReactNode> | null;
 type CommandFunction = (args: string[]) => CommandResult;
 
@@ -16,7 +15,9 @@ export const createCommands = (
   fileSystem: FileSystem,
   currentPath: string,
   setCurrentPath: (path: string) => void,
-  setEditor: SetEditor
+  setEditor: SetEditor,
+  terminalContent: string[],
+  setTerminalContent: React.Dispatch<React.SetStateAction<string[]>>
 ): Commands => {
   const commands: Commands = {
     help: () => (
@@ -49,7 +50,10 @@ export const createCommands = (
       </div>
     ),
 
-    clear: () => null,
+    clear: () => {
+      setTerminalContent([]); // Clear all terminal output
+      return null; // No output for the 'clear' command
+    },
 
     echo: (args: string[]) => args.join(' '),
 
@@ -59,8 +63,8 @@ export const createCommands = (
           const pathParts = path.split('/');
           const currentParts = currentPath.split('/');
           return path.startsWith(currentPath) &&
-                 path !== currentPath &&
-                 pathParts.length === currentParts.length + 1;
+            path !== currentPath &&
+            pathParts.length === currentParts.length + 1;
         })
         .map(([path]) => {
           const name = path.split('/').pop() || '';
@@ -87,7 +91,7 @@ export const createCommands = (
         ? newPath
         : `${currentPath}/${newPath}`;
 
-      // Handle - go up one directory
+      // Handle going up one directory
       if (newPath === '..') {
         const parts = currentPath.split('/');
         parts.pop();
@@ -123,8 +127,8 @@ export const createCommands = (
           type: 'file',
           content: '',
           size: 0,
-          lastModified: new Date().toISOString()
-        }
+          lastModified: new Date().toISOString(),
+        },
       }));
       return `Created file: ${fileName}`;
     },
@@ -141,8 +145,8 @@ export const createCommands = (
       setFileSystem(prev => ({
         ...prev,
         [fullPath]: {
-          type: 'directory'
-        }
+          type: 'directory',
+        },
       }));
       return `Created directory: ${dirName}`;
     },
@@ -186,7 +190,7 @@ export const createCommands = (
       setEditor({
         isOpen: true,
         filePath: fullPath,
-        content: file.content || ''
+        content: file.content || '',
       });
 
       return 'Opening editor...';
@@ -204,14 +208,13 @@ export const createCommands = (
     calc: (args: string[]) => {
       const expr = args.join('');
       try {
-
         const result = Function('"use strict";return (' + expr + ')')();
         return `${expr} = ${result}`;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         return 'Invalid expression';
       }
-    }
+    },
   };
 
   return commands;

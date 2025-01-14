@@ -10,6 +10,7 @@ import { useFileSystem } from './useFileSystem';
 const Terminal = () => {
   // State management
   const [input, setInput] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [history, setHistory] = useState<CommandHistory[]>([]);
   const [currentPath, setCurrentPath] = useState('/home/user');
   const [editor, setEditor] = useState<EditorState>({
@@ -17,6 +18,7 @@ const Terminal = () => {
     filePath: '',
     content: '',
   });
+  const [terminalContent, setTerminalContent] = useState<string[]>([]);
 
   // Hook for file system
   const [fileSystem, setFileSystem] = useFileSystem();
@@ -32,7 +34,9 @@ const Terminal = () => {
     fileSystem,
     currentPath,
     setCurrentPath,
-    setEditor
+    setEditor,
+    terminalContent,
+    setTerminalContent,
   );
 
   // Command execution handler
@@ -41,23 +45,26 @@ const Terminal = () => {
     const timestamp = new Date().toLocaleTimeString();
 
     if (!commands[command as keyof typeof commands]) {
-      return setHistory(prev => [...prev, {
+      setTerminalContent((prev) => [...prev, `> ${cmd}`, `Command not found: ${command}`]);
+      return setHistory((prev) => [...prev, {
         command: cmd,
         output: `Command not found: ${command}`,
-        timestamp
+        timestamp,
       }]);
     }
 
     try {
       const output = await commands[command as keyof typeof commands](args);
       if (output !== null) {
-        setHistory(prev => [...prev, { command: cmd, output, timestamp }]);
+        setTerminalContent((prev) => [...prev, `> ${cmd}`, output as string]);
+        setHistory((prev) => [...prev, { command: cmd, output, timestamp }]);
       }
     } catch (error) {
-      setHistory(prev => [...prev, {
+      setTerminalContent((prev) => [...prev, `> ${cmd}`, `Error: ${error}`]);
+      setHistory((prev) => [...prev, {
         command: cmd,
         output: `Error executing command: ${error}`,
-        timestamp
+        timestamp,
       }]);
     }
   };
@@ -72,14 +79,14 @@ const Terminal = () => {
   };
 
   const handleSaveFile = () => {
-    setFileSystem(prev => ({
+    setFileSystem((prev) => ({
       ...prev,
       [editor.filePath]: {
         ...prev[editor.filePath],
         content: editor.content,
         size: editor.content.length,
-        lastModified: new Date().toISOString()
-      }
+        lastModified: new Date().toISOString(),
+      },
     }));
     setEditor({ isOpen: false, filePath: '', content: '' });
     inputRef.current?.focus();
@@ -95,19 +102,19 @@ const Terminal = () => {
     if (terminalRef.current) {
       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }
-  }, [history]);
+  }, [terminalContent]);
 
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
   return (
-    <div className="w-full h-svh bg-black p-o lg:p-6 font-mono text-sm">
+    <div className="w-full h-svh bg-black p-0 lg:p-6 font-mono text-sm">
       <motion.div
         className="rounded-xl h-full p-1.5 mb-2 overflow-hidden flex flex-col shadow-terminal-shadow discovery a-border"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
       >
         <TerminalHeader />
 
@@ -128,7 +135,7 @@ const Terminal = () => {
           ref={terminalRef}
           className="flex-1 overflow-y-auto overscroll-x-none text-zinc-200 px-1 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-800"
         >
-          {history.map((entry, i) => (
+          {terminalContent.map((entry, i) => (
             <motion.div
               key={i}
               className="space-y-1 group"
@@ -137,12 +144,11 @@ const Terminal = () => {
               transition={{ delay: i * 0.1 }}
             >
               <div className="flex items-center space-x-3">
-                <span className="text-zinc-500 text-xs">{entry.timestamp}</span>
+                <span className="text-zinc-500 text-xs">{new Date().toLocaleTimeString()}</span>
                 <span className="text-emerald-400">{currentPath}</span>
                 <span className="text-blue-400">$</span>
-                <span className="text-white">{entry.command}</span>
+                <span className="text-white">{entry}</span>
               </div>
-              <div className="pl-4 text-zinc-500">{entry.output}</div>
             </motion.div>
           ))}
         </div>
@@ -158,7 +164,7 @@ const Terminal = () => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="flex-1 bg-transparent outline-none text-x400 focus:text-white placeholder:text-zinc-500 transition  "
+            className="flex-1 bg-transparent outline-none text-white placeholder:text-zinc-500 transition"
             placeholder="Type a command..."
             autoFocus
             whileFocus={{ scale: 1.02 }}
