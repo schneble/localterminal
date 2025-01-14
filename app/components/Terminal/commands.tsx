@@ -204,9 +204,10 @@ export const createCommands = (
     calc: (args: string[]) => {
       const expr = args.join('');
       try {
-        // eslint-disable-next-line no-new-func
+
         const result = Function('"use strict";return (' + expr + ')')();
         return `${expr} = ${result}`;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         return 'Invalid expression';
       }
