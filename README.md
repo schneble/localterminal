@@ -12,7 +12,7 @@
 ## Stack
 - [Next.js](https://nextjs.org/)
 - [Typescript](https://nextjs.org/learn/excel/typescript)
-- [Tailwind](https://tailwindcss.com/docs/guides/nextjs)
+- [TailwindCSS](https://tailwindcss.com/docs/guides/nextjs)
 
 
 ## Features and Commands 
