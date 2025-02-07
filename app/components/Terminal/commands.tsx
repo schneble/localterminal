@@ -22,31 +22,52 @@ export const createCommands = (
   const commands: Commands = {
     help: () => (
       <div className="text-gray-300">
-        Available commands:
+        <strong>Available commands:</strong>
         <br />
-        - help: Show this help message
+        <strong>help</strong>: Show this help message
         <br />
-        - clear: Clear terminal
+        <strong>clear</strong>: Clear terminal
         <br />
-        - echo [text]: Display text
+        <strong>echo [text]</strong>: Display text
         <br />
-        - ls: List directory contents
+        <strong>ls</strong>: List directory contents
         <br />
-        - cd [path]: Change directory
+        <strong>cd [path]</strong>: Change directory
         <br />
-        - cat [file]: Display file contents
+        <strong>cat [file]</strong>: Display file contents
         <br />
-        - touch [file]: Create new file
+        <strong>touch [file]</strong>: Create new file
         <br />
-        - mkdir [dir]: Create new directory
+        <strong>mkdir [dir]</strong>: Create new directory
         <br />
-        - rm [file/dir]: Remove file or directory
+        <strong>rm [file/dir]</strong>: Remove file or directory
         <br />
-        - edit [file]: Edit file contents
+        <strong>edit [file]</strong>: Edit file contents
         <br />
-        - weather [city]: Get weather info
+        <strong>weather [city]</strong>: Get weather info
         <br />
-        - calc [expression]: Calculate expression
+        <strong>calc [expression]</strong>: Calculate expression
+        <br />
+        <strong>mv [source] [destination]</strong>: Move or rename files and directories
+        <br />
+        <strong>cp [source] [destination]</strong>: Copy files and directories
+        <br />
+        <strong>grep [pattern] [file]</strong>: Search for a pattern in a file
+        <br />
+        <br />
+        <strong>Examples:</strong>
+        <br />
+        <em>echo Hello World</em>: Displays &quot;Hello World&quot;
+        <br />
+        <em>cd /home/user/docs</em>: Changes directory to /home/user/docs
+        <br />
+        <em>cat file.txt</em>: Displays contents of file.txt
+        <br />
+        <em>mv oldname.txt newname.txt</em>: Renames oldname.txt to newname.txt
+        <br />
+        <em>cp file1.txt file2.txt</em>: Copies file1.txt to file2.txt
+        <br />
+        <em>grep &quot;search&quot; file.txt</em>: Searches for &quot;search&quot; in file.txt
       </div>
     ),
 
@@ -214,6 +235,60 @@ export const createCommands = (
       } catch (e) {
         return 'Invalid expression';
       }
+    },
+
+    mv: (args: string[]) => {
+      const [source, destination] = args;
+      if (!source || !destination) return 'Please specify source and destination';
+
+      const sourcePath = `${currentPath}/${source}`;
+      const destinationPath = `${currentPath}/${destination}`;
+
+      if (!fileSystem[sourcePath]) {
+        return `Error: ${source} does not exist`;
+      }
+
+      setFileSystem(prev => {
+        const newFS = { ...prev };
+        newFS[destinationPath] = newFS[sourcePath];
+        delete newFS[sourcePath];
+        return newFS;
+      });
+
+      return `Moved ${source} to ${destination}`;
+    },
+
+    cp: (args: string[]) => {
+      const [source, destination] = args;
+      if (!source || !destination) return 'Please specify source and destination';
+
+      const sourcePath = `${currentPath}/${source}`;
+      const destinationPath = `${currentPath}/${destination}`;
+
+      if (!fileSystem[sourcePath]) {
+        return `Error: ${source} does not exist`;
+      }
+
+      setFileSystem(prev => ({
+        ...prev,
+        [destinationPath]: { ...prev[sourcePath] },
+      }));
+
+      return `Copied ${source} to ${destination}`;
+    },
+
+    grep: (args: string[]) => {
+      const [pattern, fileName] = args;
+      if (!pattern || !fileName) return 'Please specify a pattern and a file';
+
+      const fullPath = `${currentPath}/${fileName}`;
+      if (fileSystem[fullPath]?.type === 'file') {
+        const content = fileSystem[fullPath]?.content;
+        if (!content) return 'File is empty';
+        const matches = content.split('\n').filter(line => line.includes(pattern));
+        return matches.length > 0 ? matches.join('\n') : 'No matches found';
+      }
+      return 'File not found';
     },
   };
 
